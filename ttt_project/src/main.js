@@ -1,8 +1,10 @@
-import './style.css'
-import javascriptLogo from './javascript.svg'
+import '/styles/style.css'
+import javascriptLogo from '/javascript.svg'
 import viteLogo from '/vite.svg'
 import { setupCounter } from './counter.js'
 
+
+/* `main.js` will denote our landing page */
 document.querySelector('#app').innerHTML = `
   <div>
     <a href="https://vitejs.dev" target="_blank">
