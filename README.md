@@ -8,7 +8,7 @@ To get a local copy up and running follow these simple example steps.
 
 1. Clone the repo
    ```sh
-   git@github.com:jakobsym/mongooseStuff.git
+   git@github.com:jakobsym/TrendTech_Titans.git
    ```
 2. Install NPM packages (Make sure you are at root of the directory)
    ```sh
