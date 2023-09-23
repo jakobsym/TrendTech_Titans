@@ -20,6 +20,8 @@ To get a local copy up and running follow these simple example steps.
    ```
 
 ### Project File Structure
+* Ignore the ugly format on github.com, if you look at the README.md in your IDE it is actually readable.
+
 ttt_project/
   ├── node_modules/       # Dependencies (auto-generated)
   ├── public/             # Static assets (HTML, CSS, images, etc.)
