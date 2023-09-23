@@ -10,7 +10,7 @@ To get a local copy up and running follow these simple example steps.
    ```sh
    git@github.com:jakobsym/TrendTech_Titans.git
    ```
-2. Install NPM packages (Make sure you are at root of the directory)
+2. Install NPM packages (Make sure your pwd is `ttt_project` before installing)
    ```sh
    npm install
    ```
