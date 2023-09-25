@@ -27,7 +27,7 @@ ttt_project/
   │   ├── server/         # Backend server code
   │   │   ├── models/     # Database models (using Mongoose)
   │   │   ├── routes/     # Express.js routes
-  │   │   ├── app.js      # Express.js application setup
+  │   │   ├── server.js   # Express.js application setup
   │   │   └── config.js   # Configuration settings (e.g., database connection)
   │   ├── client/         # Frontend code
   │   │   ├── components/ # Reusable UI components (e.g., Header, ProductCard)
