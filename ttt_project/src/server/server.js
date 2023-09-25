@@ -1,11 +1,11 @@
-/* How to run backend server: node server.js */
+/* How to run backend server(depends on current path): node server.js */
 import 'dotenv/config'
+import express from 'express'
+import mongoose from 'mongoose'
 
-console.log(process.env.DATABASE_URL);
+//console.log(process.env.DATABASE_URL);
 
-const express = require('express');
 const app = express();
-const mongoose = require('mongoose');
 
 mongoose.connect(process.env.DATABASE_URL); // connect to our database
 const db = mongoose.connection;
@@ -24,4 +24,4 @@ app.use(express.json()); //JSON as that is what all GET/POST request(s) will be
 
 
 // listen for connection
-app.listen(3000, () => console.log('Backend server running at localhost:3000'))
+app.listen(3000, () => console.log('Backend server running at http://localhost:3000'))
