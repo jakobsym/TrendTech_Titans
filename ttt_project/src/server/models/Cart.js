@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-// Import User.js ????
+
 
 const cartSchema = new mongoose.Schema({
     user: {
@@ -32,3 +32,5 @@ const cartSchema = new mongoose.Schema({
         default: Date.now(),
     }
 });
+
+// Cart specific middlewares

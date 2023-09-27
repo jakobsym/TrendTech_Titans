@@ -30,3 +30,15 @@ const userSchema = new mongoose.Schema({
     },
 
 });
+
+/* Note: routes execute after middlewares */
+// User & Admin specific middlewares
+
+/*
+Create new user
+
+**/
+
+/*
+Email Validation
+**/
