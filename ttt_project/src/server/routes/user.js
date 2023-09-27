@@ -17,3 +17,25 @@ router.post('/register', async (req, res) => {
       res.status(500).json({ message: 'Server error' });
     }
 });
+
+
+
+
+/*
+    - Middleware that gets a User based on user ID
+    - Can use this method in any route/middleware that requries a user ID
+**/
+async function getUser(req, res, next) {
+    let user;
+    try {
+        user = await User.findById(req.params.id); 
+        if (!user) {
+            return res.status(404).json({message: 'User cannot be found.'});
+        }
+
+    } catch (error) {
+        return res.status(500).json({message: error.message});
+    }
+    res.user = user;
+    next();
+}

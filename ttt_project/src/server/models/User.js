@@ -1,4 +1,6 @@
 import mongoose from 'mongoose'
+import Cart from '../models/Cart.js'
+
 // We can encrypt user information if we want? seems extra for project
 
 const userSchema = new mongoose.Schema({
@@ -34,11 +36,12 @@ const userSchema = new mongoose.Schema({
 /* Note: routes execute after middlewares */
 // User & Admin specific middlewares
 
-/*
-Create new user
 
-**/
+userSchema.post
 
 /*
-Email Validation
+    - Email Validation for a User
+    - 
 **/
+
+module.exports = mongoose.model('User', userSchema);

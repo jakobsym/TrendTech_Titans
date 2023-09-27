@@ -1,4 +1,4 @@
-/* How to run backend server(depends on current path): node server.js */
+/* How to run backend server(depends on current path): -> node server.js */
 import 'dotenv/config'
 import express from 'express'
 import mongoose from 'mongoose'
@@ -15,12 +15,7 @@ db.on('error', (error) => console.error(error));
 db.once('open', () => console.log('Connected to DB.'));
 
 app.use(express.json()); //JSON as that is what all GET/POST request(s) will be
-app.use('/register', userRoutes);
-
-// Middleware setup here
-
-
-// Handle `routes` here
+app.use('/register', userRoutes); // handle `/register` route 
 
 
 // Handle static assets (html, css, images)

@@ -30,3 +30,5 @@ const productSchema =  new mongoose.Schema({
 });
 
 // Product specific middlewares
+
+module.exports = mongoose.model('Product', productSchema);
