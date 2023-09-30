@@ -2,12 +2,12 @@
 import 'dotenv/config'
 import express from 'express'
 import mongoose from 'mongoose'
-import userRoutes from './routes/user.js'
+import userRouter from './routes/user.js'
 
-//console.log(process.env.DATABASE_URL);
+// TODO: Fix this .env file --> console.log(process.env.DATABASE_URL);
 
 const app = express();
-mongoose.connect(process.env.DATABASE_URL); // connect to our database
+mongoose.connect('mongodb://0.0.0.0:27017/ecommerceDB'); // connect to our database
 const db = mongoose.connection;
 
 // handle any errors when connecting to DB
@@ -15,7 +15,7 @@ db.on('error', (error) => console.error(error));
 db.once('open', () => console.log('Connected to DB.'));
 
 app.use(express.json()); //JSON as that is what all GET/POST request(s) will be
-app.use('/register', userRoutes); // handle `/register` route 
+app.use('/register', userRouter)
 
 
 // Handle static assets (html, css, images)
