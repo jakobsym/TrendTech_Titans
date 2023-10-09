@@ -38,4 +38,3 @@ ttt_project/
   ├── package.json        # Project dependencies and scripts
   ├── .gitignore          # Git ignore configuration
   ├── README.md           # Project documentation
- 

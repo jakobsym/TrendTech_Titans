@@ -25,13 +25,13 @@ dbRouter.delete('/:id', getUser, async(req, res) => {
     }
 });
 
-
+s
 // route for discount code
 dbRouter.post('/discount', async(req, res) => {
     const discountCode = genDiscountCode();
 
     try {
-        
+
         
     } catch (error) {
         return res.status().json({message: error.message});
