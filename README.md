@@ -8,9 +8,9 @@ To get a local copy up and running follow these simple example steps.
 
 1. Clone the repo
    ```sh
-   git@github.com:jakobsym/mongooseStuff.git
+   git@github.com:jakobsym/TrendTech_Titans.git
    ```
-2. Install NPM packages (Make sure you are at root of the directory)
+2. Install NPM packages (Make sure your pwd is `ttt_project` before installing)
    ```sh
    npm install
    ```
@@ -20,6 +20,8 @@ To get a local copy up and running follow these simple example steps.
    ```
 
 ### Project File Structure
+* Ignore spaghetti below if you look at the README.md in your IDE it is actually readable there.
+
 ttt_project/
   ├── node_modules/       # Dependencies (auto-generated)
   ├── public/             # Static assets (HTML, CSS, images, etc.)
