@@ -29,9 +29,6 @@ const userSchema = new mongoose.Schema({
 
 });
 
-/*
-    - Email Validation for a User
-    - 
-**/
+
 
 export default mongoose.model('User', userSchema);

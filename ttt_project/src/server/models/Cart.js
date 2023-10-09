@@ -33,7 +33,8 @@ const cartSchema = new mongoose.Schema({
     }
 });
 
-// Cart specific middlewares
+// middlewares:
+// -> used when you are calling stuff for this model A LOT
 
-
+// Cart specific middlewares 
 export default mongoose.model('Cart', cartSchema);

@@ -1,7 +1,8 @@
 import '/styles/style.css'
 import javascriptLogo from '/javascript.svg'
 import viteLogo from '/vite.svg'
-import { setupCounter } from '../counter.js'
+
+
 
 
 /* `main.js` will denote our landing page */
@@ -15,9 +16,9 @@ document.querySelector('#app').innerHTML = `
     </a>
     <h1>Hello, World!</h1>
     <div class="card">
-      <button id="counter" type="button"></button>
+      <a href="http://localhost:3000/register" class="register-link">Register</a>
     </div>
   </div>
 `
 
-setupCounter(document.querySelector('#counter'))
+/* URL I want to use ->   http://localhost:5173/register  */
