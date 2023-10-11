@@ -14,6 +14,17 @@ dbRouter.get('/', async(req,res) => {
     }
 });
 
+// TODO: After working on login, implement this so admin button can populate if 
+// specific route to get admin role for loading admin button on homescreen
+dbRouter.get('/getadmin', async(req, res) => {
+    try {
+        const admin = await User.find({isAdmin: true}); // query for isAdmin: true ?
+        res.send(admin.isAdmin); // true or false as return
+    }catch(error){
+        res.status(500).json({message: error.message});
+    }
+});
+
 // delete a `User`based on ID
 dbRouter.delete('/:id', getUser, async(req, res) => {
     try{
@@ -25,18 +36,16 @@ dbRouter.delete('/:id', getUser, async(req, res) => {
     }
 });
 
-s
 // route for discount code
 dbRouter.post('/discount', async(req, res) => {
-    const discountCode = genDiscountCode();
-
+    const discountCode = genDiscountCode(); // ABCD
     try {
-
-        
     } catch (error) {
         return res.status().json({message: error.message});
     }
 });
+
+
 
 /**
  * Gets a User by ID
@@ -58,11 +67,6 @@ async function getUser(req, res, next) {
     res.user = user;
     next();
 };
-
-/**
- * Allow for creation of discount codes 
- * Admin clicks a button, and it generates a randomized code that is sent to the screen
- */
 
 
 /**
