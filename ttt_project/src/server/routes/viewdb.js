@@ -3,8 +3,17 @@ const dbRouter = express.Router();
 import User from '../models/User.js'
 import Cart from '../models/Cart.js'
 
+/* All routes are built upon 
+
+    -> localhost:3000/viewdb 
+    // get all users
+    -> localhost:3000/viewdb/getusers
+*/
+
+
+
 // Print all `Users`stored in the DB
-dbRouter.get('/', async(req,res) => {
+dbRouter.get('/getusers', async(req,res) => {
     try {
         const users = await User.find();
         res.send(users);
@@ -13,6 +22,36 @@ dbRouter.get('/', async(req,res) => {
         res.status(500).json({message: error.message});
     }
 });
+
+
+// delete a `User`based on ID
+// Route example: localhost:3000/someUserID
+dbRouter.delete('/:id', getUser, async(req, res) => {
+    try{
+        await res.user.deleteOne();
+        res.json({message: `${res.user.id} user deleted.`});
+
+    } catch(error) {
+        res.status(500).json({message: error.message});
+    }
+});
+
+
+
+
+// route for discount code
+dbRouter.post('/discount', async(req, res) => {
+    const discountCode = genDiscountCode();
+    try {
+    } catch (error) {
+        return res.status().json({message: error.message});
+    }
+});
+
+
+
+
+// TODO: Unsure about this route, and logic 10/21/23
 
 // TODO: After working on login, implement this so admin button can populate if 
 // specific route to get admin role for loading admin button on homescreen
@@ -24,27 +63,6 @@ dbRouter.get('/getadmin', async(req, res) => {
         res.status(500).json({message: error.message});
     }
 });
-
-// delete a `User`based on ID
-dbRouter.delete('/:id', getUser, async(req, res) => {
-    try{
-        await res.user.deleteOne();
-        res.json({message: `${res.user.id} user deleted.`});
-
-    } catch(error) {
-        res.status(500).json({message: error.message});
-    }
-});
-
-// route for discount code
-dbRouter.post('/discount', async(req, res) => {
-    const discountCode = genDiscountCode(); // ABCD
-    try {
-    } catch (error) {
-        return res.status().json({message: error.message});
-    }
-});
-
 
 
 /**
@@ -69,6 +87,8 @@ async function getUser(req, res, next) {
 };
 
 
+
+// Allow admin to create discount codes
 /**
  * Randomized discount codes generated
  * @returns {String} a randomized value which represents the discount code

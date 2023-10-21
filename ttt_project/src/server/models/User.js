@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
-import validator from 'validator'
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+//import validator from 'validator'
+//import bcrypt from 'bcryptjs'
+//import jwt from 'jsonwebtoken'
 import Cart from '../models/Cart.js'
 
 // We can encrypt user information if we want? seems extra for project
@@ -51,6 +51,9 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 });
 
+/*
+TODO: Currently getting error stating 'Cannot find package 'validator', 'bcrypt', 'jwt' '
+which is why methods below are commented out.
 
 userSchema.methods.genAuthToken() = async function() {
     const user = this;
@@ -90,5 +93,6 @@ userSchema.pre('save', async function(next){
     next();
 });
 
+*/
 
 export default mongoose.model('User', userSchema);
