@@ -1,12 +1,11 @@
 import express from 'express';
-const userRouter = express.Router();
 import User from '../models/User.js'
 import Cart from '../models/Cart.js'
+//import Auth from '../../middleware/auth.js'
+const userRouter = express.Router();
 
 /** 
-    - Route that handles User registration.
-    - Takes passed in request and assigns values( name, email, password )to User fields
-    - Each user gets a `cart` associated with their account upon registration
+    User registration route
  */
 userRouter.post('/', async (req, res) => {
     
@@ -22,14 +21,10 @@ userRouter.post('/', async (req, res) => {
 
     const newCart = new Cart();  
     user.cart = newCart;
-    /*
-    console.log(user.name);
-    console.log(user.email);
-    console.log(user.password);
-    */
 
     try {                
         const newUser = await user.save();
+        
         console.log(newUser);
         //const userCart = await cart.save();
         res.status(201).json(newUser);
@@ -41,18 +36,32 @@ userRouter.post('/', async (req, res) => {
 
 
 /**
- * - Handle all User `login` request(s)
+ * User `login` request(s)
  */
 userRouter.post('/login', async (req, res) => {
     try {
         const user  = await User.findByCredentials(req.body.email, req.body.password); 
-        const token = await user.genAuthToken();                                      // TODO: install genAuth() 
+        const token = await user.genAuthToken();                                   
         res.send({user, token});
     } catch (error) {
         res.status(400).send(error);
         console.log("Error logging user in.");
     }
 });
+
+/**
+ * User logout request(s)
+ */
+userRouter.post('/logout', async(req, res) => {
+    try {
+    } catch (error) {
+        res.status(400).send(message.error);
+        console.log("Error logging out.");
+        
+    }
+})
+
+
 
 
 export default userRouter;

@@ -77,7 +77,7 @@ function genDiscountCode() {
     const chars = 'TRENDTECHTITANS!$?4';
     const charsLen = chars.length;
     let discountCode = '';
-    
+
 
     for(i = 0; i < chars.length; i++) {
         discountCode += chars.charAt(Math.floor(Math.random() * charsLen));

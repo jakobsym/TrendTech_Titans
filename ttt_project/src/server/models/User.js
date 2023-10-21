@@ -16,9 +16,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         lowercase: true,
             validate( value ){
-                // TODO: create ìsUserEmail()``
-                // -> checks passed `value` against saved user email 
-                if( !validator.isUserEmail( value )) {
+                if( !validator.isEmail( value )) {
                     throw new Error('Email invalid');
                 }
             }
@@ -53,10 +51,11 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 });
 
+
 userSchema.methods.genAuthToken() = async function() {
     const user = this;
     // gen token
-    const token = jwt.sign({_id: user._id.toString()}, // TODO: is toString() predefined?
+    const token = jwt.sign({_id: user._id.toString()},
         'testToken');
 
     user.tokens = user.tokens.concat({token}); // assign token to users 'tokens'
@@ -70,24 +69,25 @@ userSchema.statics.findByCredentials = async (email, password) => {
     const User = this;
     const userCheck = await User.findOne({email});
    // const user = await userSchema.findOne({email});
-
     if (!userCheck) {
         throw new Error('Error logging in.');
     }
+    const isMatch = await bcrypt.compare(password, userCheck.password);
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch){
+        throw new Error('error logging in')
+    }
+    return userCheck;
 };
 
 
 // Hash user password before saving
 userSchema.pre('save', async function(next){
     const user = this;
-
     if (user.isModified('password')){
-        user.password = await bcrypt.hash(user.password, 8);
+        user.password = await bcrypt.hash(user.password, 6); // limit hash to 6KB
     }
     next();
-
 });
 
 
