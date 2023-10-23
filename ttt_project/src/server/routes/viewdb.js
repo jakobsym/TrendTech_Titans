@@ -3,6 +3,21 @@ const dbRouter = express.Router();
 import User from '../models/User.js'
 import Cart from '../models/Cart.js'
 
+/* 
+TODO:
+Administrative back end
+- Allow to modify all items
+- Allow for creation of discount codes
+- Allow for creation of sales items // place an item on sale
+- Allow to modify users
+- Show currently placed orders
+- Show history of orders
+	- Sort by order date
+	- Sort by customer
+	- Sort by order size in dollar amount
+
+*/
+
 /* All routes are built upon 
 
     -> localhost:3000/viewdb 
@@ -12,7 +27,7 @@ import Cart from '../models/Cart.js'
 
 
 
-// Print all `Users`stored in the DB
+// Print all `Users` stored in the DB
 dbRouter.get('/getusers', async(req,res) => {
     try {
         const users = await User.find();
@@ -22,6 +37,18 @@ dbRouter.get('/getusers', async(req,res) => {
         res.status(500).json({message: error.message});
     }
 });
+
+
+// Modify user based on ID
+dbRouter.get('/modifyuser/:id', getUser, async(req, res)=> {
+
+});
+
+// route for updating the users name
+dbRouter.put('modifyuser/:id/updateusername', getUser, async(req, res) =>{
+
+});
+
 
 
 // delete a `User`based on ID
@@ -37,8 +64,6 @@ dbRouter.delete('/:id', getUser, async(req, res) => {
 });
 
 
-
-
 // route for discount code
 dbRouter.post('/discount', async(req, res) => {
     const discountCode = genDiscountCode();
@@ -47,6 +72,8 @@ dbRouter.post('/discount', async(req, res) => {
         return res.status().json({message: error.message});
     }
 });
+
+
 
 
 

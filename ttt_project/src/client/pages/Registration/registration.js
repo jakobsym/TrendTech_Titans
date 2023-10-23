@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(registrationForm){
         console.log("gotElementById @ registrationForm");
     }
-
+    // Adding eventListener to button of type='submit'
     registrationForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 

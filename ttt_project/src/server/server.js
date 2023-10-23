@@ -41,13 +41,43 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'src/client/pages/Login', 'login.html'))
 });
 
+// Display Admin Dashboard MainPage
+app.get('/viewdb', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'AdminMainPage.html'))
+});
 
-/*
-// loads admin.html when `/admin` route accessed.
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'adminPage.html'));
-})
-*/
+// HTML for displaying the modifyUser HTML
+app.get('/viewdb/modifyuser', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'modifyuser.html'))
+});
+
+
+// HTML for displaying the orderhistory HTML
+app.get('/viewdb/orderhistory', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'orderhistory.html'))
+});
+
+// HTML for displaying currentOrder HTML
+app.get('/viewdb/currentorder', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'currentorder.html'))
+});
+
+// HTML for displaying createDicount HTML
+app.get('/viewdb/creatediscount', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'creatediscount.html'))
+});
+
+// HTML for displaying createsaleitems HTML
+app.get('/viewdb/createsaleitem', (req, res) =>{
+    res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'createsaleitem.html'))
+});
+
+
+// HTML for modifyitems HTML
+app.get('/viewdb/modifyitem', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'modifyitem.html'))
+});
+
 
 app.use(express.json());               //JSON as that is what all GET/POST request(s) will be
 app.use('/login', userRouter);        // TODO: Not sure if this works out?   
