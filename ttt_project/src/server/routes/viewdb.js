@@ -27,8 +27,9 @@ Administrative back end
 
 
 
-// Print all `Users` stored in the DB
+// get all `Users` stored in the DB
 dbRouter.get('/getusers', async(req,res) => {
+    
     try {
         const users = await User.find();
         res.send(users);
@@ -39,21 +40,48 @@ dbRouter.get('/getusers', async(req,res) => {
 });
 
 
-// Modify user based on ID
-dbRouter.get('/modifyuser/:id', getUser, async(req, res)=> {
+// Modify user (Email, Password, or Name) based on ID
+// Using 'patch' instead of 'put' as we only want to update specific fields of the User
+dbRouter.patch('/modifyuser/:userId', getUser, async(req, res)=> {
+    // res.user to access getUser user passed in
+    const userId = req.params.userId;
+    const {key, value} = req.body; 
 
+    try {
+        // ensure user exists
+        if (!res.user) {
+            res.status(400).json({message: "Error that UserID does not exist"});
+        }
+
+        if (req.body.name){
+            res.user.name = req.body.name;
+        } else if (req.body.email){
+            res.user.email = req.body.email;
+        } else if (req.body.password){
+            res.user.password = req.body.password; // TODO: Update securely (hashing)
+        } else {
+            res.status(400).json({message: "Invalid User Input"});
+        }
+
+        const updatedUser = await res.user.save();
+       
+        res.json(updatedUser);
+        //res.send(updatedUser);
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({message: "Server Error OW"});
+        
+    }
+   
 });
 
-// route for updating the users name
-dbRouter.put('modifyuser/:id/updateusername', getUser, async(req, res) =>{
-
-});
 
 
 
 // delete a `User`based on ID
 // Route example: localhost:3000/someUserID
-dbRouter.delete('/:id', getUser, async(req, res) => {
+dbRouter.delete('/:userId', getUser, async(req, res) => {
     try{
         await res.user.deleteOne();
         res.json({message: `${res.user.id} user deleted.`});
@@ -101,15 +129,16 @@ dbRouter.get('/getadmin', async(req, res) => {
  */
 async function getUser(req, res, next) {
     let user;
+
     try {
-        user = await User.findById(req.params.id); 
+        user = await User.findById(req.params.userId); 
         if (!user) {
             return res.status(404).json({message: 'User cannot be found.'});
         }
     } catch (error) {
         return res.status(500).json({message: error.message});
     }
-    res.user = user;
+    res.user = user; // use 'res.user' in all getUser methods to access the current user based on ID
     next();
 };
 

@@ -51,7 +51,6 @@ app.get('/viewdb/modifyuser', (req, res) => {
     res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'modifyuser.html'))
 });
 
-
 // HTML for displaying the orderhistory HTML
 app.get('/viewdb/orderhistory', (req, res) => {
     res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'orderhistory.html'))
@@ -71,7 +70,6 @@ app.get('/viewdb/creatediscount', (req, res) => {
 app.get('/viewdb/createsaleitem', (req, res) =>{
     res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'createsaleitem.html'))
 });
-
 
 // HTML for modifyitems HTML
 app.get('/viewdb/modifyitem', (req, res) => {
