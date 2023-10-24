@@ -35,33 +35,5 @@ userRouter.post('/', async (req, res) => {
 });
 
 
-/**
- * User `login` request(s)
- */
-userRouter.post('/login', async (req, res) => {
-    try {
-        const user  = await User.findByCredentials(req.body.email, req.body.password); 
-        const token = await user.genAuthToken();                                   
-        res.send({user, token});
-    } catch (error) {
-        res.status(400).send(error);
-        console.log("Error logging user in.");
-    }
-});
-
-/**
- * User logout request(s)
- */
-userRouter.post('/logout', async(req, res) => {
-    try {
-    } catch (error) {
-        res.status(400).send(message.error);
-        console.log("Error logging out.");
-        
-    }
-})
-
-
-
 
 export default userRouter;
