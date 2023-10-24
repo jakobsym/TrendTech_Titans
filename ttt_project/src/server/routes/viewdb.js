@@ -65,8 +65,8 @@ dbRouter.patch('/modifyuser/:userId', getUser, async(req, res)=> {
 
         const updatedUser = await res.user.save();
        
-        res.json(updatedUser);
-        //res.send(updatedUser);
+        res.json(updatedUser); // TODO: Not 100% if this is correction location in requests scope
+
         
     } catch (error) {
         console.error(error);
