@@ -26,6 +26,13 @@ Administrative back end
 */
 
 
+/**
+ * Display all currently placed orders
+ */
+dbRouter.get('/orders', async(req, res) => {
+
+
+});
 
 // get all `Users` stored in the DB
 dbRouter.get('/getusers', async(req,res) => {
@@ -43,40 +50,46 @@ dbRouter.get('/getusers', async(req,res) => {
 // Modify user (Email, Password, or Name) based on ID
 // Using 'patch' instead of 'put' as we only want to update specific fields of the User
 dbRouter.patch('/modifyuser/:userId', getUser, async(req, res)=> {
-    // res.user to access getUser user passed in
-    const userId = req.params.userId;
-    const {key, value} = req.body; 
+    // `res.user` to access getUser user passed in
+    const updates = req.body.updates; // An array which holds objects
 
+    //console.log(`req.body.updates = ${JSON.stringify(req.body.updates)}`);
     try {
         // ensure user exists
         if (!res.user) {
             res.status(400).json({message: "Error that UserID does not exist"});
         }
 
-        if (req.body.name){
-            res.user.name = req.body.name;
-        } else if (req.body.email){
-            res.user.email = req.body.email;
-        } else if (req.body.password){
-            res.user.password = req.body.password; // TODO: Update securely (hashing)
-        } else {
-            res.status(400).json({message: "Invalid User Input"});
-        }
-
+        //console.log(`req.body contents = ${JSON.stringify(req.body)}`);
+        updates.forEach(object => {
+            for(const key in object){
+                // ensure `key` has a property(value)
+                if (Object.hasOwnProperty.call(object, key)) {
+                    const value = object[key]; // ex: "name" : "bob"; `value` = bob
+                    if (key === 'name'){
+                        res.user.name = value
+                    } else if (key === 'email'){
+                        res.user.email = value
+                    } else if (key === 'password'){
+                        res.user.password = value // TODO: Update securely (hashing)
+                    } else {
+                        res.status(400).json({message: "Invalid User Input"});
+                        return; // exit loop for invalid input
+                    }
+                }
+            }
+        });
+    
         const updatedUser = await res.user.save();
-       
-        res.json(updatedUser); // TODO: Not 100% if this is correction location in requests scope
-
+        console.log(`updatedUser = ${JSON.stringify(updatedUser)}`);
+        res.json(updatedUser); // Send response back in JSON format
         
     } catch (error) {
         console.error(error);
         res.status(500).json({message: "Server Error OW"});
-        
     }
    
 });
-
-
 
 
 // delete a `User`based on ID
