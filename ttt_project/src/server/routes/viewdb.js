@@ -2,14 +2,15 @@ import express from 'express'
 const dbRouter = express.Router();
 import User from '../models/User.js'
 import Cart from '../models/Cart.js'
+import Product from '../models/Product.js';
 
 /* 
 TODO:
 Administrative back end
-- Allow to modify all items
+- Allow to modify all items (CURRENT TASK)
 - Allow for creation of discount codes
-- Allow for creation of sales items // place an item on sale
-- Allow to modify users
+- Allow for creation of sales items (1/2 DONE)
+- Allow to modify users (DONE)
 - Show currently placed orders
 - Show history of orders
 	- Sort by order date
@@ -17,13 +18,84 @@ Administrative back end
 	- Sort by order size in dollar amount
 
 */
-
 /* All routes are built upon 
 
     -> localhost:3000/viewdb 
     // get all users
     -> localhost:3000/viewdb/getusers
 */
+
+
+/* Modifying Orders Request(s) */
+/**
+ * /createitem
+ * - Creates an item which can be sold
+ */
+dbRouter.post('/createitem', async(req, res)=> {
+    const newItem = new Product({
+        name: req.body.name,
+        description: req.body.description,
+        price: req.body.price,      // price is of type Number (easier calculations)
+        image: req.body.image,     // .png or .jpeg string
+    });
+
+    try {
+        const newProduct = await newItem.save();
+        console.log(`newProduct = ${JSON.stringify(newProduct)}`);
+        res.status(201).json(newProduct);
+    } catch (error) {
+        res.status(400).json({message: "Error saving product to database."});
+    }
+});
+
+/**
+ * /deleteitem/id
+ * - Delete an item based on the ID passed in url
+ */
+dbRouter.delete('/deleteitem:/itemId', getItem, async(req, res) =>{
+
+});
+
+/**
+ * Get all current items for sale
+ */
+dbRouter.get('/getitems', async(req, res) => {
+    try {
+        const items = await Product.find();
+        res.send(items);
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({message: "Error getting all items from database."});
+    }
+});
+
+/**
+ * /createsaleitem
+ * - Creates a sale item
+ */
+dbRouter.post('/createsaleitem', async(req, res) => {
+    // just set a discount on the item when creating it
+    const saleItem = new Product({
+        name: req.body.name,
+        description: req.body.description,
+        price: req.body.price,      // price is of type Number (easier calculations)
+        image: req.body.image,     // .png or .jpeg string
+        discount: req.body.discount,
+    });
+    
+    console.log(`original price = ${saleItem.price}`);
+    // Apply discount
+    saleItem.price -= (saleItem.price * (saleItem.discount / 100));
+    console.log(`discounted price = ${saleItem.price}`);
+
+    try {
+        const newSaleProduct = await saleItem.save();
+        console.log(`newSaleProduct = ${JSON.stringify(newSaleProduct)}`);
+        res.status(201).json(newSaleProduct);
+    } catch (error) {
+        res.status(400).json({message: "Error saving product to database."});
+    }
+});
 
 
 /**
@@ -93,8 +165,8 @@ dbRouter.patch('/modifyuser/:userId', getUser, async(req, res)=> {
 
 
 // delete a `User`based on ID
-// Route example: localhost:3000/someUserID
-dbRouter.delete('/:userId', getUser, async(req, res) => {
+// Route example: localhost:3000/deleteuser/someUserID
+dbRouter.delete('deleteuser/:userId', getUser, async(req, res) => {
     try{
         await res.user.deleteOne();
         res.json({message: `${res.user.id} user deleted.`});
@@ -119,7 +191,10 @@ dbRouter.post('/discount', async(req, res) => {
 
 
 
-// TODO: Unsure about this route, and logic 10/21/23
+
+
+
+
 
 // TODO: After working on login, implement this so admin button can populate if 
 // specific route to get admin role for loading admin button on homescreen
@@ -138,7 +213,7 @@ dbRouter.get('/getadmin', async(req, res) => {
  * @param {Object} req 
  * @param {Object} res 
  * @param {Function} next 
- * @returns a response of a `User` based on their ID
+ * @returns a response of a `User` based on userID
  */
 async function getUser(req, res, next) {
     let user;
@@ -146,7 +221,7 @@ async function getUser(req, res, next) {
     try {
         user = await User.findById(req.params.userId); 
         if (!user) {
-            return res.status(404).json({message: 'User cannot be found.'});
+            return res.status(404).json({message: 'No User of that ID'});
         }
     } catch (error) {
         return res.status(500).json({message: error.message});
@@ -157,7 +232,31 @@ async function getUser(req, res, next) {
 
 
 
-// Allow admin to create discount codes
+/**
+ * 
+ * @param {Object} req 
+ * @param {Object} res 
+ * @param {Function} next 
+ * @returns a response of a 'Item' based on itemID
+ */
+async function getItem(req, res, next) {
+    let item;
+
+    try {
+        item = await Product.findById(req.params.itemId);
+
+        if(!item){
+            return res.status(404).json({message: "No item of that ID"});
+        }
+    } catch (error) {
+        return res.status(500).json({message: "ItemID cannot be found in db."})
+    }
+    res.item = item;
+    next();
+}
+
+
+
 /**
  * Randomized discount codes generated
  * @returns {String} a randomized value which represents the discount code
