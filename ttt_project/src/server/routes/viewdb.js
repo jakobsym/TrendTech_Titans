@@ -8,9 +8,13 @@ import Product from '../models/Product.js';
 TODO:
 Administrative back end
 - Allow to modify all items (CURRENT TASK)
+    - delete items
+    - create items
+    - 
 - Allow for creation of discount codes
-- Allow for creation of sales items (1/2 DONE)
+- Allow for creation of sales items (DONE)
 - Allow to modify users (DONE)
+
 - Show currently placed orders
 - Show history of orders
 	- Sort by order date
@@ -27,6 +31,7 @@ Administrative back end
 
 
 /* Modifying Orders Request(s) */
+
 /**
  * /createitem
  * - Creates an item which can be sold
@@ -52,7 +57,14 @@ dbRouter.post('/createitem', async(req, res)=> {
  * /deleteitem/id
  * - Delete an item based on the ID passed in url
  */
-dbRouter.delete('/deleteitem:/itemId', getItem, async(req, res) =>{
+dbRouter.delete('/deleteitem/:itemId', getItem, async(req, res) => {
+    try{
+        await res.item.deleteOne();
+        res.json({message: `${res.item.id} item deleted.`});
+
+    } catch(error) {
+        res.status(500).json({message: "ERROR: Unable to delete item from db."});
+    }
 
 });
 
@@ -82,7 +94,7 @@ dbRouter.post('/createsaleitem', async(req, res) => {
         image: req.body.image,     // .png or .jpeg string
         discount: req.body.discount,
     });
-    
+
     console.log(`original price = ${saleItem.price}`);
     // Apply discount
     saleItem.price -= (saleItem.price * (saleItem.discount / 100));
@@ -98,6 +110,16 @@ dbRouter.post('/createsaleitem', async(req, res) => {
 });
 
 
+// route for discount code
+dbRouter.post('/discount', async(req, res) => {
+    const discountCode = genDiscountCode();
+    try {
+    } catch (error) {
+        return res.status().json({message: error.message});
+    }
+});
+
+
 /**
  * Display all currently placed orders
  */
@@ -105,6 +127,10 @@ dbRouter.get('/orders', async(req, res) => {
 
 
 });
+
+
+
+/* User Functions */
 
 // get all `Users` stored in the DB
 dbRouter.get('/getusers', async(req,res) => {
@@ -176,15 +202,6 @@ dbRouter.delete('deleteuser/:userId', getUser, async(req, res) => {
     }
 });
 
-
-// route for discount code
-dbRouter.post('/discount', async(req, res) => {
-    const discountCode = genDiscountCode();
-    try {
-    } catch (error) {
-        return res.status().json({message: error.message});
-    }
-});
 
 
 
