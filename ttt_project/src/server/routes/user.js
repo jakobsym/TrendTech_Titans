@@ -30,7 +30,7 @@ userRouter.post('/', async (req, res) => {
         res.status(201).json(newUser);
     } catch (error) {
         console.error(error);
-        res.status(400).json({ message: error.message });
+        res.status(400).json({ message: "Error saving user to database."});
     }
 });
 
@@ -59,8 +59,7 @@ userRouter.post('/logout', async(req, res) => {
         console.log("Error logging out.");
         
     }
-})
-
+});
 
 
 

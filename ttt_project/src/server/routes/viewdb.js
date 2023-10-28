@@ -7,23 +7,26 @@ import Product from '../models/Product.js';
 /* 
 TODO:
 Administrative back end
-- Allow to modify all items (CURRENT TASK)
-    - delete items
-    - create items
-    - 
-- Allow for creation of discount codes
-- Allow for creation of sales items (DONE)
-- Allow to modify users (DONE)
+- Allow to modify all items (WIP)
+    - delete items (DONE)
+    - create items (DONE)
+    - update quantity? (DONE)
+    - change description? (WIP)
+    - change image? (WIP)
 
-- Show currently placed orders
+- Allow for creation of discount codes (WIP)
+- Show currently placed orders (WIP)
 - Show history of orders
 	- Sort by order date
 	- Sort by customer
 	- Sort by order size in dollar amount
 
-*/
-/* All routes are built upon 
 
+- Allow for creation of sales items (DONE)
+- Allow to modify users (DONE)
+*/
+
+/* All routes are built upon 
     -> localhost:3000/viewdb 
     // get all users
     -> localhost:3000/viewdb/getusers
@@ -42,6 +45,7 @@ dbRouter.post('/createitem', async(req, res)=> {
         description: req.body.description,
         price: req.body.price,      // price is of type Number (easier calculations)
         image: req.body.image,     // .png or .jpeg string
+        inventory: req.body.inventory
     });
 
     try {
@@ -68,8 +72,45 @@ dbRouter.delete('/deleteitem/:itemId', getItem, async(req, res) => {
 
 });
 
+/** 
+ * Increment or Decrement inventory of an Item 
+*/
+dbRouter.patch('/updateitem/:itemId', getItem, async(req, res) => {
+    // res.item := access to the getItem()
+    try {
+        if (!res.item) {
+            res.status(400).json({message: "ERROR: No item of of given ID."});
+        }
+
+        if (req.body.inventory){
+            console.log(`inventory before = ${res.item.inventory}`);
+            res.item.inventory += req.body.inventory;
+            console.log(`inventory after = ${res.item.inventory}`);
+        }
+
+        const updatedItem = await res.item.save();
+        console.log(`updatedItem = ${JSON.stringify(updatedItem)}`);
+        res.json(updatedItem); // Send response back in JSON format
+
+    } catch (error) {
+        res.status(500).json({message: "ERROR: Cannot save changes to DB."});
+    }
+});
+
+
 /**
- * Get all current items for sale
+ * Decrement Quantity of an Item
+*/
+//dbRouter.patch();
+
+/**
+ * Change Item Description
+ */
+//dbRouter.patch();
+
+
+/**
+ * Get all current items
  */
 dbRouter.get('/getitems', async(req, res) => {
     try {
@@ -92,6 +133,7 @@ dbRouter.post('/createsaleitem', async(req, res) => {
         description: req.body.description,
         price: req.body.price,      // price is of type Number (easier calculations)
         image: req.body.image,     // .png or .jpeg string
+        inventory: req.body.inventory,
         discount: req.body.discount,
     });
 
@@ -111,6 +153,7 @@ dbRouter.post('/createsaleitem', async(req, res) => {
 
 
 // route for discount code
+/*
 dbRouter.post('/discount', async(req, res) => {
     const discountCode = genDiscountCode();
     try {
@@ -118,16 +161,17 @@ dbRouter.post('/discount', async(req, res) => {
         return res.status().json({message: error.message});
     }
 });
+*/
 
 
 /**
  * Display all currently placed orders
- */
+ 
 dbRouter.get('/orders', async(req, res) => {
 
 
 });
-
+*/
 
 
 /* User Functions */
