@@ -26,11 +26,6 @@ Administrative back end
 - Allow to modify users (DONE)
 */
 
-/* All routes are built upon 
-    -> localhost:3000/viewdb 
-    // get all users
-    -> localhost:3000/viewdb/getusers
-*/
 
 
 /* Modifying Orders Request(s) */
@@ -53,7 +48,7 @@ dbRouter.post('/createitem', async(req, res)=> {
         console.log(`newProduct = ${JSON.stringify(newProduct)}`);
         res.status(201).json(newProduct);
     } catch (error) {
-        res.status(400).json({message: "Error saving product to database."});
+        res.status(400).json({message: "ERROR: Cannot save product to database."});
     }
 });
 
@@ -98,10 +93,6 @@ dbRouter.patch('/updateitem/:itemId', getItem, async(req, res) => {
 });
 
 
-/**
- * Decrement Quantity of an Item
-*/
-//dbRouter.patch();
 
 /**
  * Change Item Description
@@ -118,7 +109,7 @@ dbRouter.get('/getitems', async(req, res) => {
         res.send(items);
     } catch (error) {
         console.error(error)
-        res.status(500).json({message: "Error getting all items from database."});
+        res.status(500).json({message: "ERROR: Cannot get all items from database."});
     }
 });
 
@@ -147,7 +138,7 @@ dbRouter.post('/createsaleitem', async(req, res) => {
         console.log(`newSaleProduct = ${JSON.stringify(newSaleProduct)}`);
         res.status(201).json(newSaleProduct);
     } catch (error) {
-        res.status(400).json({message: "Error saving product to database."});
+        res.status(400).json({message: "ERROR: Unable to save product to database."});
     }
 });
 
@@ -174,7 +165,7 @@ dbRouter.get('/orders', async(req, res) => {
 */
 
 
-/* User Functions */
+/* User related Functions */
 
 // get all `Users` stored in the DB
 dbRouter.get('/getusers', async(req,res) => {
@@ -184,7 +175,7 @@ dbRouter.get('/getusers', async(req,res) => {
         res.send(users);
     } catch (error) {
         console.error(error)
-        res.status(500).json({message: error.message});
+        res.status(500).json({message: "ERROR: Cannot get all Users."});
     }
 });
 
@@ -199,7 +190,7 @@ dbRouter.patch('/modifyuser/:userId', getUser, async(req, res)=> {
     try {
         // ensure user exists
         if (!res.user) {
-            res.status(400).json({message: "Error that UserID does not exist"});
+            res.status(400).json({message: "ERROR: UserID does not exist"});
         }
 
         //console.log(`req.body contents = ${JSON.stringify(req.body)}`);
@@ -215,7 +206,7 @@ dbRouter.patch('/modifyuser/:userId', getUser, async(req, res)=> {
                     } else if (key === 'password'){
                         res.user.password = value // TODO: Update securely (hashing)
                     } else {
-                        res.status(400).json({message: "Invalid User Input"});
+                        res.status(400).json({message: "ERROR: Invalid User Input"});
                         return; // exit loop for invalid input
                     }
                 }
@@ -228,7 +219,7 @@ dbRouter.patch('/modifyuser/:userId', getUser, async(req, res)=> {
         
     } catch (error) {
         console.error(error);
-        res.status(500).json({message: "Server Error OW"});
+        res.status(500).json({message: "ERROR: Server Error OW"});
     }
    
 });
@@ -242,7 +233,7 @@ dbRouter.delete('deleteuser/:userId', getUser, async(req, res) => {
         res.json({message: `${res.user.id} user deleted.`});
 
     } catch(error) {
-        res.status(500).json({message: error.message});
+        res.status(500).json({message: "ERROR: Cannot delete User."});
     }
 });
 
@@ -264,7 +255,7 @@ dbRouter.get('/getadmin', async(req, res) => {
         const admin = await User.find({isAdmin: true}); // query for isAdmin: true ?
         res.send(admin.isAdmin); // true or false as return
     }catch(error){
-        res.status(500).json({message: error.message});
+        res.status(500).json({message: "ERROR: Cannot access Admin"});
     }
 });
 
@@ -307,10 +298,10 @@ async function getItem(req, res, next) {
         item = await Product.findById(req.params.itemId);
 
         if(!item){
-            return res.status(404).json({message: "No item of that ID"});
+            return res.status(404).json({message: "ERROR: No item of that ID"});
         }
     } catch (error) {
-        return res.status(500).json({message: "ItemID cannot be found in db."})
+        return res.status(500).json({message: "ERROR: ItemID cannot be found in db."})
     }
     res.item = item;
     next();
