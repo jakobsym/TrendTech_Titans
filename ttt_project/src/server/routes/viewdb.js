@@ -3,20 +3,24 @@ const dbRouter = express.Router();
 import User from '../models/User.js'
 import Cart from '../models/Cart.js'
 import Product from '../models/Product.js';
+import Order from '../models/Order.js';
+
+const SALES_TAX = Math.round(8.25*100)/100; 
 
 /* 
 TODO:
 Administrative back end
-- Allow to modify all items (WIP)
+- Allow to modify all items (DONE)
     - delete items (DONE)
     - create items (DONE)
     - update quantity? (DONE)
-    - change description? (WIP)
-    - change image? (WIP)
+    - change description? (DONE)
+    - change price? (DONE)
 
 - Allow for creation of discount codes (WIP)
-- Show currently placed orders (WIP)
-- Show history of orders
+- Show currently placed orders (DONE)
+
+- Show history of orders (WIP)
 	- Sort by order date
 	- Sort by customer
 	- Sort by order size in dollar amount
@@ -70,7 +74,7 @@ dbRouter.delete('/deleteitem/:itemId', getItem, async(req, res) => {
 /** 
  * Increment or Decrement inventory of an Item 
 */
-dbRouter.patch('/updateitem/:itemId', getItem, async(req, res) => {
+dbRouter.patch('/updateiteminv/:itemId', getItem, async(req, res) => {
     // res.item := access to the getItem()
     try {
         if (!res.item) {
@@ -92,20 +96,67 @@ dbRouter.patch('/updateitem/:itemId', getItem, async(req, res) => {
     }
 });
 
-
-
 /**
  * Change Item Description
  */
-//dbRouter.patch();
+dbRouter.patch('/updateitemdesc/:itemId', getItem, async(req, res) => {
+
+    try {
+
+        if (!res.item) {
+            return res.json(400).message({message: "ERROR: Item of that ID does not exist."});
+        }
+
+        console.log(`descriptionB = ${res.item.description}`);
+        if (req.body.description){
+            res.item.description = req.body.description;
+        }
+        console.log(`descriptionA = ${res.item.description}`);
+
+        const updatedItem = await res.item.save();
+        console.log(`updatedItem = ${JSON.stringify(updatedItem)}`);
+        res.json(updatedItem); // Send response back in JSON format
+        
+    } catch (error) {
+        return res.json(500).message({message: "ERROR: Cannot save changes to DB."})
+    }
+});
+
+
+/**
+ * Change Item Price
+ */
+dbRouter.patch('/updateitemprice/:itemId', getItem, async(req, res) => {
+    try {
+
+        if (!res.item) {
+            return res.json(400).message({message: "ERROR: Item of that ID does not exist."});
+        }
+        
+        console.log(`priceB = ${res.item.price}`);
+        if (req.body.price){
+            res.item.price = req.body.price;
+        }
+        console.log(`priceA = ${res.item.price}`);
+
+        const updatedItem = await res.item.save();
+        console.log(`updatedItem = ${JSON.stringify(updatedItem)}`);
+        res.json(updatedItem); // Send response back in JSON format
+        
+    } catch (error) {
+        return res.json(500).message({message: "ERROR: Cannot save changes to DB."})
+    }
+
+});
 
 
 /**
  * Get all current items
+ * - Displays all Product(s)
  */
 dbRouter.get('/getitems', async(req, res) => {
     try {
-        const items = await Product.find();
+        const items = await Product.find(); 
         res.send(items);
     } catch (error) {
         console.error(error)
@@ -143,26 +194,22 @@ dbRouter.post('/createsaleitem', async(req, res) => {
 });
 
 
-// route for discount code
-/*
-dbRouter.post('/discount', async(req, res) => {
-    const discountCode = genDiscountCode();
-    try {
-    } catch (error) {
-        return res.status().json({message: error.message});
-    }
-});
-*/
+//TODO: Allow for creation of discount codes (WIP)
+// applying a discount we need the ItemID
 
 
 /**
  * Display all currently placed orders
- 
-dbRouter.get('/orders', async(req, res) => {
-
-
+ * - Orders is not fully implemented yet.
+ */
+dbRouter.get('/getorders', async(req, res) => {
+    try {
+        const orders = await Order.find();
+        res.send(orders);
+    } catch (error) {
+        res.status(500).json.message({message: "ERROR: Cannot get all Orders."});
+    }
 });
-*/
 
 
 /* User related Functions */
@@ -236,15 +283,6 @@ dbRouter.delete('deleteuser/:userId', getUser, async(req, res) => {
         res.status(500).json({message: "ERROR: Cannot delete User."});
     }
 });
-
-
-
-
-
-
-
-
-
 
 
 
@@ -324,6 +362,45 @@ function genDiscountCode() {
     }
     return discountCode
 }
+
+// Create new orders, to test filtering
+dbRouter.post('/createorder', async(req, res) => {
+
+    const user = req.body.user;
+    const products = req.body.products;
+    const orderStatus = req.body.orderStatus;
+    let orderSum = 0;
+    
+    //console.log(`user = ${user}`);
+    console.log(`products = ${JSON.stringify(products)}`);
+    //console.log(`orderStatus = ${orderStatus}`);
+
+    // get all products from products array
+    for (const key in products) {
+        const curItem = await Product.findById(products[key].product);
+        orderSum += curItem.price;
+        //console.log(`curItem.price = ${curItem.price}`); 
+    }
+
+    orderSum += (orderSum * (SALES_TAX / 100));
+    const orderSumFixed = Math.round(orderSum*100)/100; // I.E: 45.9999324 -> 45.99 (type Number) 
+    console.log(`orderSumFixed = ${orderSumFixed}`);
+
+    const newOrder = new Order({
+        user: user,
+        products: products,
+        orderStatus: orderStatus,
+        orderTotal: orderSumFixed,
+    });
+    
+    try {
+        const order = await newOrder.save();
+        //console.log(`order = ${JSON.stringify(order)}`);
+        res.status(201).json(order);
+    } catch (error) {
+        res.status(500).json({ message: 'ERROR: Cannot create the order'});
+    }
+});
 
 
 export default dbRouter;
