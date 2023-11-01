@@ -7,6 +7,9 @@ import Order from '../models/Order.js';
 
 const SALES_TAX = Math.round(8.25*100)/100; 
 
+//TODO: Change all routes to work with admin dashboard frontend
+//TODO: Chance all 'res.json()' to 'res.send()'
+
 /* 
 TODO:
 Administrative back end
@@ -20,12 +23,10 @@ Administrative back end
 - Allow for creation of discount codes (WIP)
 - Show currently placed orders (DONE)
 
-- Show history of orders (WIP)
-	- Sort by order date
-	- Sort by customer
-	- Sort by order size in dollar amount
-
-
+- Show history of orders (DONE)
+	- Sort by order date (DONE)
+	- Sort by customer (DONE)
+	- Sort by order size in dollar amount (DONE)
 - Allow for creation of sales items (DONE)
 - Allow to modify users (DONE)
 */
@@ -60,22 +61,23 @@ dbRouter.post('/createitem', async(req, res)=> {
  * /deleteitem/id
  * - Delete an item based on the ID passed in url
  */
-dbRouter.delete('/deleteitem/:itemId', getItem, async(req, res) => {
+dbRouter.delete('/deleteitem/', async(req, res) => {
+    const itemName = req.query.name;
     try{
-        await res.item.deleteOne();
-        res.json({message: `${res.item.id} item deleted.`});
-
+        const foundItem = await Product.deleteOne({name: itemName});
+        //res.json({message: `${JSON.stringify(foundItem)} item deleted.`});
+        res.send(JSON.stringify(foundItem));    
     } catch(error) {
         res.status(500).json({message: "ERROR: Unable to delete item from db."});
     }
-
-});
+}); 
 
 /** 
  * Increment or Decrement inventory of an Item 
 */
 dbRouter.patch('/updateiteminv/:itemId', getItem, async(req, res) => {
     // res.item := access to the getItem()
+    
     try {
         if (!res.item) {
             res.status(400).json({message: "ERROR: No item of of given ID."});
@@ -127,8 +129,8 @@ dbRouter.patch('/updateitemdesc/:itemId', getItem, async(req, res) => {
  * Change Item Price
  */
 dbRouter.patch('/updateitemprice/:itemId', getItem, async(req, res) => {
-    try {
 
+    try {
         if (!res.item) {
             return res.json(400).message({message: "ERROR: Item of that ID does not exist."});
         }
@@ -164,6 +166,7 @@ dbRouter.get('/getitems', async(req, res) => {
     }
 });
 
+
 /**
  * /createsaleitem
  * - Creates a sale item
@@ -193,10 +196,8 @@ dbRouter.post('/createsaleitem', async(req, res) => {
     }
 });
 
-
 //TODO: Allow for creation of discount codes (WIP)
 // applying a discount we need the ItemID
-
 
 /**
  * Display all currently placed orders
@@ -210,6 +211,76 @@ dbRouter.get('/getorders', async(req, res) => {
         res.status(500).json.message({message: "ERROR: Cannot get all Orders."});
     }
 });
+
+/**
+ * Get all current orders via price (high - low)
+ */
+dbRouter.get('/getorders/byprice/high-low', async(req, res) => {
+    try {
+        const orders = await Order.find().sort({orderTotal: -1});
+        // something with orders.orderTotal
+        res.send(orders);
+    } catch (error) {
+        res.status(500).json.message({message: "ERROR: Cannot get all Orders."});
+    }
+});
+
+/**
+ * Get all current orders via price (low - high)
+ */
+dbRouter.get('/getorders/byprice/low-high', async(req, res) => {
+    try {
+        const orders = await Order.find().sort({orderTotal: 1});
+        // something with orders.orderTotal
+        res.send(orders);
+    } catch (error) {
+        res.status(500).json.message({message: "ERROR: Cannot get all Orders."});
+    }
+});
+
+/**
+ * Get all orders via date (new - old)
+ */
+dbRouter.get('/getorders/bydate/new-old' , async(req, res) => {
+    try {
+        const orders = await Order.find().sort({orderDate: -1}); // 1
+        // something with orders.orderTotal
+        res.send(orders);
+    } catch (error) {
+        res.status(500).json.message({message: "ERROR: Cannot get all Orders."});
+    }
+});
+
+/**
+ * Get all orders via date (old - new)
+ */
+dbRouter.get('/getorders/bydate/old-new', async(req, res) => {
+    try {
+        const orders = await Order.find().sort({orderDate: 1}); // -1
+        // something with orders.orderTotal
+        res.send(orders);
+    } catch (error) {
+        res.status(500).json.message({message: "ERROR: Cannot get all Orders."});
+    }
+});
+
+/**
+ * Get all orders for a Customer via their name
+ * - Enter a customer name, and get all of their orders
+ */
+//TODO: May need to change other requests to use this format, specfically getUser or getItem functions
+dbRouter.get('/getorders/bycustomer/', async(req, res) => {
+    const userName = req.query.name;
+    //console.log(`userName = ${userName}`);
+    try {
+        const foundUser = await User.find({name: userName}).exec();
+        //console.log(`user found = ${JSON.stringify(user)}`);
+        const orders = await Order.find({user: foundUser}).exec(); 
+        res.send(orders);
+    } catch (error) {
+        res.status(500).json({messsage: `ERROR: Cannot get ${userName} from db.`});
+    }
+}); 
 
 
 /* User related Functions */
@@ -285,7 +356,6 @@ dbRouter.delete('deleteuser/:userId', getUser, async(req, res) => {
 });
 
 
-
 // TODO: After working on login, implement this so admin button can populate if 
 // specific route to get admin role for loading admin button on homescreen
 dbRouter.get('/getadmin', async(req, res) => {
@@ -321,7 +391,6 @@ async function getUser(req, res, next) {
 };
 
 
-
 /**
  * 
  * @param {Object} req 
@@ -344,7 +413,6 @@ async function getItem(req, res, next) {
     res.item = item;
     next();
 }
-
 
 
 /**
@@ -372,7 +440,7 @@ dbRouter.post('/createorder', async(req, res) => {
     let orderSum = 0;
     
     //console.log(`user = ${user}`);
-    console.log(`products = ${JSON.stringify(products)}`);
+    //console.log(`products = ${JSON.stringify(products)}`);
     //console.log(`orderStatus = ${orderStatus}`);
 
     // get all products from products array
@@ -384,7 +452,7 @@ dbRouter.post('/createorder', async(req, res) => {
 
     orderSum += (orderSum * (SALES_TAX / 100));
     const orderSumFixed = Math.round(orderSum*100)/100; // I.E: 45.9999324 -> 45.99 (type Number) 
-    console.log(`orderSumFixed = ${orderSumFixed}`);
+    //console.log(`orderSumFixed = ${orderSumFixed}`);
 
     const newOrder = new Order({
         user: user,

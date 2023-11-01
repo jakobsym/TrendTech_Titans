@@ -1,6 +1,7 @@
 import express from 'express';
 import User from '../models/User.js'
 import Cart from '../models/Cart.js'
+import Order from '../models/Order.js';
 //import Auth from '../../middleware/auth.js'
 const userRouter = express.Router();
 
@@ -18,9 +19,11 @@ userRouter.post('/', async (req, res) => {
     if (user.name === 'admin') {
         user.isAdmin = true;
     }
-
+    const newOrder = new Order();
     const newCart = new Cart();  
+
     user.cart = newCart;
+    user.order = newOrder;
 
     try {                
         const newUser = await user.save();
