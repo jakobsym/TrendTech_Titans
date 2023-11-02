@@ -8,32 +8,14 @@ import Order from '../models/Order.js';
 const SALES_TAX = Math.round(8.25*100)/100; 
 
 //TODO: Change all routes to work with admin dashboard frontend
-//TODO: Chance all 'res.json()' to 'res.send()'
+
 
 /* 
 TODO:
-Administrative back end
-- Allow to modify all items (DONE)
-    - delete items (DONE)
-    - create items (DONE)
-    - update quantity? (DONE)
-    - change description? (DONE)
-    - change price? (DONE)
-
+Administrative back end:
 - Allow for creation of discount codes (WIP)
-- Show currently placed orders (DONE)
-
-- Show history of orders (DONE)
-	- Sort by order date (DONE)
-	- Sort by customer (DONE)
-	- Sort by order size in dollar amount (DONE)
-- Allow for creation of sales items (DONE)
-- Allow to modify users (DONE)
 */
 
-
-
-/* Modifying Orders Request(s) */
 
 /**
  * /createitem
@@ -61,7 +43,7 @@ dbRouter.post('/createitem', async(req, res)=> {
  * /deleteitem/id
  * - Delete an item based on the ID passed in url
  */
-dbRouter.delete('/deleteitem/', async(req, res) => {
+dbRouter.delete('/deleteitem', async(req, res) => {
     const itemName = req.query.name;
     try{
         const foundItem = await Product.deleteOne({name: itemName});
@@ -75,23 +57,25 @@ dbRouter.delete('/deleteitem/', async(req, res) => {
 /** 
  * Increment or Decrement inventory of an Item 
 */
-dbRouter.patch('/updateiteminv/:itemId', getItem, async(req, res) => {
-    // res.item := access to the getItem()
+dbRouter.patch('/updateiteminv', async(req, res) => {
+    const item = req.query.name;
     
     try {
-        if (!res.item) {
-            res.status(400).json({message: "ERROR: No item of of given ID."});
+        const foundItem = await Product.findOne({name: item});
+
+        if (!foundItem) {
+            res.status(400).json({message: `ERROR: ${foundItem.name} is not a current product.`});
         }
 
         if (req.body.inventory){
-            console.log(`inventory before = ${res.item.inventory}`);
-            res.item.inventory += req.body.inventory;
-            console.log(`inventory after = ${res.item.inventory}`);
+            console.log(`inventory before = ${foundItem.inventory}`);
+            foundItem.inventory += req.body.inventory;
+            console.log(`inventory after = ${foundItem.inventory}`);
         }
 
-        const updatedItem = await res.item.save();
+        const updatedItem = await foundItem.save();
         console.log(`updatedItem = ${JSON.stringify(updatedItem)}`);
-        res.json(updatedItem); // Send response back in JSON format
+        res.send(updatedItem); // Send response back in JSON format
 
     } catch (error) {
         res.status(500).json({message: "ERROR: Cannot save changes to DB."});
@@ -101,23 +85,25 @@ dbRouter.patch('/updateiteminv/:itemId', getItem, async(req, res) => {
 /**
  * Change Item Description
  */
-dbRouter.patch('/updateitemdesc/:itemId', getItem, async(req, res) => {
+dbRouter.patch('/updateitemdesc', async(req, res) => {
+    const itemName = req.query.name;
 
     try {
+        const foundItem = await Product.findOne({name: itemName});
 
-        if (!res.item) {
-            return res.json(400).message({message: "ERROR: Item of that ID does not exist."});
+        if (!foundItem) {
+            return res.json(400).message({message: "ERROR: Item of that name does not exist."});
         }
+        console.log(`descriptionB = ${foundItem.description}`);
 
-        console.log(`descriptionB = ${res.item.description}`);
         if (req.body.description){
-            res.item.description = req.body.description;
+            foundItem.description = req.body.description;
         }
-        console.log(`descriptionA = ${res.item.description}`);
 
-        const updatedItem = await res.item.save();
+        console.log(`descriptionA = ${foundItem.description}`);
+        const updatedItem = await foundItem.save();
         console.log(`updatedItem = ${JSON.stringify(updatedItem)}`);
-        res.json(updatedItem); // Send response back in JSON format
+        res.send(updatedItem); // Send response back in JSON format
         
     } catch (error) {
         return res.json(500).message({message: "ERROR: Cannot save changes to DB."})
@@ -126,27 +112,30 @@ dbRouter.patch('/updateitemdesc/:itemId', getItem, async(req, res) => {
 
 
 /**
- * Change Item Price
+ * Change Item Price based on item name
  */
-dbRouter.patch('/updateitemprice/:itemId', getItem, async(req, res) => {
-
+dbRouter.patch('/updateitemprice', async(req, res) => {
+    const itemName = req.query.name;
+    console.log(`itemName = ${itemName}`);
     try {
-        if (!res.item) {
+        const foundItem = await Product.findOne({name: itemName}).exec();
+
+        if (!foundItem) {
             return res.json(400).message({message: "ERROR: Item of that ID does not exist."});
         }
-        
-        console.log(`priceB = ${res.item.price}`);
+        console.log(`contents of foundItem = ${foundItem}`);
+        console.log(`priceB = ${foundItem.price}`);
         if (req.body.price){
-            res.item.price = req.body.price;
+            foundItem.price = req.body.price;
         }
-        console.log(`priceA = ${res.item.price}`);
+        console.log(`priceA = ${foundItem.price}`);
 
-        const updatedItem = await res.item.save();
+        const updatedItem = await foundItem.save();
         console.log(`updatedItem = ${JSON.stringify(updatedItem)}`);
-        res.json(updatedItem); // Send response back in JSON format
+        res.send(updatedItem);
         
-    } catch (error) {
-        return res.json(500).message({message: "ERROR: Cannot save changes to DB."})
+    } catch (error) { 
+        res.status(500).json({message: "ERROR: Cannot save changes to DB."})
     }
 
 });
@@ -201,7 +190,6 @@ dbRouter.post('/createsaleitem', async(req, res) => {
 
 /**
  * Display all currently placed orders
- * - Orders is not fully implemented yet.
  */
 dbRouter.get('/getorders', async(req, res) => {
     try {
@@ -213,12 +201,11 @@ dbRouter.get('/getorders', async(req, res) => {
 });
 
 /**
- * Get all current orders via price (high - low)
+ * Get all current orders via price (high -> low)
  */
 dbRouter.get('/getorders/byprice/high-low', async(req, res) => {
     try {
         const orders = await Order.find().sort({orderTotal: -1});
-        // something with orders.orderTotal
         res.send(orders);
     } catch (error) {
         res.status(500).json.message({message: "ERROR: Cannot get all Orders."});
@@ -226,12 +213,11 @@ dbRouter.get('/getorders/byprice/high-low', async(req, res) => {
 });
 
 /**
- * Get all current orders via price (low - high)
+ * Get all current orders via price (low -> high)
  */
 dbRouter.get('/getorders/byprice/low-high', async(req, res) => {
     try {
         const orders = await Order.find().sort({orderTotal: 1});
-        // something with orders.orderTotal
         res.send(orders);
     } catch (error) {
         res.status(500).json.message({message: "ERROR: Cannot get all Orders."});
@@ -239,12 +225,11 @@ dbRouter.get('/getorders/byprice/low-high', async(req, res) => {
 });
 
 /**
- * Get all orders via date (new - old)
+ * Get all orders via date (new -> old)
  */
 dbRouter.get('/getorders/bydate/new-old' , async(req, res) => {
     try {
-        const orders = await Order.find().sort({orderDate: -1}); // 1
-        // something with orders.orderTotal
+        const orders = await Order.find().sort({orderDate: -1});
         res.send(orders);
     } catch (error) {
         res.status(500).json.message({message: "ERROR: Cannot get all Orders."});
@@ -252,12 +237,11 @@ dbRouter.get('/getorders/bydate/new-old' , async(req, res) => {
 });
 
 /**
- * Get all orders via date (old - new)
+ * Get all orders via date (old -> new)
  */
 dbRouter.get('/getorders/bydate/old-new', async(req, res) => {
     try {
-        const orders = await Order.find().sort({orderDate: 1}); // -1
-        // something with orders.orderTotal
+        const orders = await Order.find().sort({orderDate: 1});
         res.send(orders);
     } catch (error) {
         res.status(500).json.message({message: "ERROR: Cannot get all Orders."});
@@ -269,7 +253,7 @@ dbRouter.get('/getorders/bydate/old-new', async(req, res) => {
  * - Enter a customer name, and get all of their orders
  */
 //TODO: May need to change other requests to use this format, specfically getUser or getItem functions
-dbRouter.get('/getorders/bycustomer/', async(req, res) => {
+dbRouter.get('/getorders/bycustomer', async(req, res) => {
     const userName = req.query.name;
     //console.log(`userName = ${userName}`);
     try {
@@ -300,15 +284,18 @@ dbRouter.get('/getusers', async(req,res) => {
 
 // Modify user (Email, Password, or Name) based on ID
 // Using 'patch' instead of 'put' as we only want to update specific fields of the User
-dbRouter.patch('/modifyuser/:userId', getUser, async(req, res)=> {
-    // `res.user` to access getUser user passed in
+dbRouter.patch('/modifyuser',async(req, res)=> {
+    const userName = req.query.name;
+    console.log(`user = ${userName}`);
     const updates = req.body.updates; // An array which holds objects
-
     //console.log(`req.body.updates = ${JSON.stringify(req.body.updates)}`);
+
     try {
-        // ensure user exists
-        if (!res.user) {
-            res.status(400).json({message: "ERROR: UserID does not exist"});
+        const foundUser = await User.findOne({name: userName});
+
+        // ensure user !exists
+        if (!foundUser) {
+            res.status(400).json({message: `ERROR: User of that name does not exist`});
         }
 
         //console.log(`req.body contents = ${JSON.stringify(req.body)}`);
@@ -318,11 +305,11 @@ dbRouter.patch('/modifyuser/:userId', getUser, async(req, res)=> {
                 if (Object.hasOwnProperty.call(object, key)) {
                     const value = object[key]; // ex: "name" : "bob"; `value` = bob
                     if (key === 'name'){
-                        res.user.name = value
+                        foundUser.name = value
                     } else if (key === 'email'){
-                        res.user.email = value
+                        foundUser.email = value
                     } else if (key === 'password'){
-                        res.user.password = value // TODO: Update securely (hashing)
+                        foundUser.password = value // TODO: Update securely (hashing)
                     } else {
                         res.status(400).json({message: "ERROR: Invalid User Input"});
                         return; // exit loop for invalid input
@@ -330,31 +317,41 @@ dbRouter.patch('/modifyuser/:userId', getUser, async(req, res)=> {
                 }
             }
         });
-    
-        const updatedUser = await res.user.save();
+        const updatedUser = await foundUser.save();
         console.log(`updatedUser = ${JSON.stringify(updatedUser)}`);
-        res.json(updatedUser); // Send response back in JSON format
-        
+        res.send(updatedUser); // Send response back in JSON format
+
     } catch (error) {
         console.error(error);
         res.status(500).json({message: "ERROR: Server Error OW"});
     }
-   
 });
 
 
 // delete a `User`based on ID
 // Route example: localhost:3000/deleteuser/someUserID
-dbRouter.delete('deleteuser/:userId', getUser, async(req, res) => {
-    try{
-        await res.user.deleteOne();
-        res.json({message: `${res.user.id} user deleted.`});
 
+dbRouter.delete('/deleteuser', async(req, res) => {
+    const userName = req.query.name;
+    try{
+        const foundUser = await User.deleteOne({name: userName});
+        res.send({message: `${JSON.stringify(foundUser.name)} user deleted.`});
     } catch(error) {
         res.status(500).json({message: "ERROR: Cannot delete User."});
     }
 });
 
+/*
+//TODO: Move this a utility route (Not that important)
+dbRouter.delete('/deleteuser/:userId', getUser, async(req, res) => {
+    try{
+        await res.user.deleteOne();
+        res.json({message: `${res.user.id} user deleted.`});
+    } catch(error) {
+        res.status(500).json({message: "ERROR: Cannot delete User."});
+    }
+});
+*/
 
 // TODO: After working on login, implement this so admin button can populate if 
 // specific route to get admin role for loading admin button on homescreen
@@ -432,6 +429,7 @@ function genDiscountCode() {
 }
 
 // Create new orders, to test filtering
+//TODO: Move this to a utility route (not that important)
 dbRouter.post('/createorder', async(req, res) => {
 
     const user = req.body.user;
