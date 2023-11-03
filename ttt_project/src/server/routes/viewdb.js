@@ -2,6 +2,7 @@ import express from 'express'
 const dbRouter = express.Router();
 import User from '../models/User.js'
 import Cart from '../models/Cart.js'
+import DiscountCode from '../models/DiscountCode.js';
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
 
@@ -329,9 +330,6 @@ dbRouter.patch('/modifyuser',async(req, res)=> {
 });
 
 
-// delete a `User`based on ID
-// Route example: localhost:3000/deleteuser/someUserID
-
 dbRouter.delete('/deleteuser', async(req, res) => {
     const userName = req.query.name;
     try{
@@ -339,6 +337,27 @@ dbRouter.delete('/deleteuser', async(req, res) => {
         res.send({message: `${JSON.stringify(foundUser.name)} user deleted.`});
     } catch(error) {
         res.status(500).json({message: "ERROR: Cannot delete User."});
+    }
+});
+
+
+/**
+ * - Allow for creation of discount codes
+ * - Discount is applied as a (% off)
+ */
+dbRouter.post('/creatediscount', async(req, res) => {
+
+    const newDiscountCode = new DiscountCode({
+        code: genDiscountCode(),
+        value: req.body.value,
+    });
+
+    try {
+        const createdCode = await newDiscountCode.save();
+        console.log(`newDiscount = ${JSON.stringify(createdCode)}`);
+        res.status(201).json(createdCode);
+    } catch(error) {
+        res.status(400).json({message: "ERROR: Cannot save discount code to database."});
     }
 });
 
@@ -360,12 +379,11 @@ dbRouter.get('/getadmin', async(req, res) => {
  * @returns {String} a randomized value which represents the discount code
  */
 function genDiscountCode() {
-    const chars = 'TRENDTECHTITANS!$?4';
-    const charsLen = chars.length;
+    const chars = 'ICLOTHES!?4';
+    const charsLen = chars.length - 6;
     let discountCode = '';
 
-
-    for(i = 0; i < chars.length; i++) {
+    for(let i = 0; i < chars.length; i++) {
         discountCode += chars.charAt(Math.floor(Math.random() * charsLen));
     }
     return discountCode

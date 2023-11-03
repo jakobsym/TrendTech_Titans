@@ -1,11 +1,11 @@
-import { express } from "express";
+import express from "express";
 const utilRouter = express.Router();
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
 import User from '../models/User.js'
+import DiscountCode from "../models/DiscountCode.js";
 
 const SALES_TAX = Math.round(8.25*100)/100;
-
 
 // Create new orders, to test filtering
 utilRouter.post('/createorder', async(req, res) => {
@@ -46,7 +46,17 @@ utilRouter.post('/createorder', async(req, res) => {
     }
 });
 
+utilRouter.get('/getdiscounts', async(req, res) => {
+    try {
+        const discounts = await DiscountCode.find();
+        res.send(discounts);
+    } catch (error) {
+        res.status(500).json.message({message: "ERROR: Cannot get discount codes from DB."});
+    }
+});
 
+// delete a `User`based on ID
+// Route example: localhost:3000/deleteuser/someUserID
 utilRouter.delete('/deleteuser/:userId', getUser, async(req, res) => {
     try{
         await res.user.deleteOne();
