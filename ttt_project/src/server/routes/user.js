@@ -37,7 +37,6 @@ userRouter.post('/', async (req, res) => {
     }
 });
 
-
 /**
  * User `login` request(s)
  */

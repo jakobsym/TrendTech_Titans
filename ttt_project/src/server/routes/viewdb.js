@@ -14,6 +14,10 @@ const SALES_TAX = Math.round(8.25*100)/100;
 TODO:
 Administrative back end:
 - Allow for creation of discount codes (WIP)
+    -> Update all orders to include `discountCode`
+        -> Create a bunch of orders that include discountCode
+    -> create discount code route
+    -> Checkout gpt output for discountCode
 */
 
 
@@ -110,7 +114,6 @@ dbRouter.patch('/updateitemdesc', async(req, res) => {
     }
 });
 
-
 /**
  * Change Item Price based on item name
  */
@@ -140,7 +143,6 @@ dbRouter.patch('/updateitemprice', async(req, res) => {
 
 });
 
-
 /**
  * Get all current items
  * - Displays all Product(s)
@@ -154,7 +156,6 @@ dbRouter.get('/getitems', async(req, res) => {
         res.status(500).json({message: "ERROR: Cannot get all items from database."});
     }
 });
-
 
 /**
  * /createsaleitem
@@ -341,17 +342,6 @@ dbRouter.delete('/deleteuser', async(req, res) => {
     }
 });
 
-/*
-//TODO: Move this a utility route (Not that important)
-dbRouter.delete('/deleteuser/:userId', getUser, async(req, res) => {
-    try{
-        await res.user.deleteOne();
-        res.json({message: `${res.user.id} user deleted.`});
-    } catch(error) {
-        res.status(500).json({message: "ERROR: Cannot delete User."});
-    }
-});
-*/
 
 // TODO: After working on login, implement this so admin button can populate if 
 // specific route to get admin role for loading admin button on homescreen
@@ -388,29 +378,6 @@ async function getUser(req, res, next) {
 };
 
 
-/**
- * 
- * @param {Object} req 
- * @param {Object} res 
- * @param {Function} next 
- * @returns a response of a 'Item' based on itemID
- */
-async function getItem(req, res, next) {
-    let item;
-
-    try {
-        item = await Product.findById(req.params.itemId);
-
-        if(!item){
-            return res.status(404).json({message: "ERROR: No item of that ID"});
-        }
-    } catch (error) {
-        return res.status(500).json({message: "ERROR: ItemID cannot be found in db."})
-    }
-    res.item = item;
-    next();
-}
-
 
 /**
  * Randomized discount codes generated
@@ -428,45 +395,6 @@ function genDiscountCode() {
     return discountCode
 }
 
-// Create new orders, to test filtering
-//TODO: Move this to a utility route (not that important)
-dbRouter.post('/createorder', async(req, res) => {
-
-    const user = req.body.user;
-    const products = req.body.products;
-    const orderStatus = req.body.orderStatus;
-    let orderSum = 0;
-    
-    //console.log(`user = ${user}`);
-    //console.log(`products = ${JSON.stringify(products)}`);
-    //console.log(`orderStatus = ${orderStatus}`);
-
-    // get all products from products array
-    for (const key in products) {
-        const curItem = await Product.findById(products[key].product);
-        orderSum += curItem.price;
-        //console.log(`curItem.price = ${curItem.price}`); 
-    }
-
-    orderSum += (orderSum * (SALES_TAX / 100));
-    const orderSumFixed = Math.round(orderSum*100)/100; // I.E: 45.9999324 -> 45.99 (type Number) 
-    //console.log(`orderSumFixed = ${orderSumFixed}`);
-
-    const newOrder = new Order({
-        user: user,
-        products: products,
-        orderStatus: orderStatus,
-        orderTotal: orderSumFixed,
-    });
-    
-    try {
-        const order = await newOrder.save();
-        //console.log(`order = ${JSON.stringify(order)}`);
-        res.status(201).json(order);
-    } catch (error) {
-        res.status(500).json({ message: 'ERROR: Cannot create the order'});
-    }
-});
 
 
 export default dbRouter;
