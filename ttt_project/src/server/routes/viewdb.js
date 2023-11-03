@@ -356,30 +356,6 @@ dbRouter.get('/getadmin', async(req, res) => {
 
 
 /**
- * Gets a User by ID
- * @param {Object} req 
- * @param {Object} res 
- * @param {Function} next 
- * @returns a response of a `User` based on userID
- */
-async function getUser(req, res, next) {
-    let user;
-
-    try {
-        user = await User.findById(req.params.userId); 
-        if (!user) {
-            return res.status(404).json({message: 'No User of that ID'});
-        }
-    } catch (error) {
-        return res.status(500).json({message: error.message});
-    }
-    res.user = user; // use 'res.user' in all getUser methods to access the current user based on ID
-    next();
-};
-
-
-
-/**
  * Randomized discount codes generated
  * @returns {String} a randomized value which represents the discount code
  */
