@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import validator from 'validator'
+//import validator from 'validator'
 
 
 // We can encrypt user information if we want? seems extra for project

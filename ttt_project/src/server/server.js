@@ -27,9 +27,9 @@ db.on('error', (error) => console.error(error));
 db.once('open', () => console.log('Connected to DB.'));
 
 app.use(cors(corsOptions));
-app.use(express.static(path.join(__dirname, 'public'))); // Handle static assets (html, css, images)
-app.use(express.static(path.join(__dirname, "src")));
-
+// Handle static assets (html, css, images)
+app.use(express.static(path.join(__dirname, 'public'))); 
+app.use(express.static(path.join(__dirname, 'src', 'client', 'pages', 'Admin')));
 
 // loads registeration.html when `/register`route accessed
 app.get('/register', (req, res) => {
@@ -41,13 +41,6 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'src/client/pages/Login', 'login.html'))
 });
 
-
-/*
-// loads admin.html when `/admin` route accessed.
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'adminPage.html'));
-})
-*/
 
 app.use(express.json());               //JSON as that is what all GET/POST request(s) will be
 app.use('/login', userRouter);        // TODO: Not sure if this works out?   
