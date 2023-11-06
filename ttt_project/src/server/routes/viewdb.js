@@ -1,26 +1,12 @@
 import express from 'express'
 const dbRouter = express.Router();
 import User from '../models/User.js'
-import Cart from '../models/Cart.js'
 import DiscountCode from '../models/DiscountCode.js';
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
 
-const SALES_TAX = Math.round(8.25*100)/100; 
 
 //TODO: Change all routes to work with admin dashboard frontend
-
-
-/* 
-TODO:
-Administrative back end:
-- Allow for creation of discount codes (WIP)
-    -> Update all orders to include `discountCode`
-        -> Create a bunch of orders that include discountCode
-    -> create discount code route
-    -> Checkout gpt output for discountCode
-*/
-
 
 /**
  * /createitem
@@ -187,9 +173,6 @@ dbRouter.post('/createsaleitem', async(req, res) => {
     }
 });
 
-//TODO: Allow for creation of discount codes (WIP)
-// applying a discount we need the ItemID
-
 /**
  * Display all currently placed orders
  */
@@ -254,7 +237,6 @@ dbRouter.get('/getorders/bydate/old-new', async(req, res) => {
  * Get all orders for a Customer via their name
  * - Enter a customer name, and get all of their orders
  */
-//TODO: May need to change other requests to use this format, specfically getUser or getItem functions
 dbRouter.get('/getorders/bycustomer', async(req, res) => {
     const userName = req.query.name;
     //console.log(`userName = ${userName}`);
@@ -268,6 +250,25 @@ dbRouter.get('/getorders/bycustomer', async(req, res) => {
     }
 }); 
 
+/**
+ * - Allow for creation of discount codes
+ * - Discount is applied as a (% off)
+ */
+dbRouter.post('/creatediscount', async(req, res) => {
+
+    const newDiscountCode = new DiscountCode({
+        code: genDiscountCode(),
+        value: req.body.value,
+    });
+
+    try {
+        const createdCode = await newDiscountCode.save();
+        console.log(`newDiscount = ${JSON.stringify(createdCode)}`);
+        res.status(201).json(createdCode);
+    } catch(error) {
+        res.status(400).json({message: "ERROR: Cannot save discount code to database."});
+    }
+});
 
 /* User related Functions */
 
@@ -341,29 +342,7 @@ dbRouter.delete('/deleteuser', async(req, res) => {
 });
 
 
-/**
- * - Allow for creation of discount codes
- * - Discount is applied as a (% off)
- */
-dbRouter.post('/creatediscount', async(req, res) => {
-
-    const newDiscountCode = new DiscountCode({
-        code: genDiscountCode(),
-        value: req.body.value,
-    });
-
-    try {
-        const createdCode = await newDiscountCode.save();
-        console.log(`newDiscount = ${JSON.stringify(createdCode)}`);
-        res.status(201).json(createdCode);
-    } catch(error) {
-        res.status(400).json({message: "ERROR: Cannot save discount code to database."});
-    }
-});
-
-
-// TODO: After working on login, implement this so admin button can populate if 
-// specific route to get admin role for loading admin button on homescreen
+// TODO: Cant do anything with this until MainPage is on GH (dont really know how login is implemented)
 dbRouter.get('/getadmin', async(req, res) => {
     try {
         const admin = await User.find({isAdmin: true}); // query for isAdmin: true ?
