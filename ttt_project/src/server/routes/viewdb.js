@@ -1,5 +1,5 @@
 import express from 'express'
-const dbRouter = express.Router();
+const adminRouter = express.Router();
 import User from '../models/User.js'
 import DiscountCode from '../models/DiscountCode.js';
 import Product from '../models/Product.js';
@@ -11,7 +11,7 @@ import Order from '../models/Order.js';
  * /createitem
  * - Creates an item which can be sold
  */
-dbRouter.post('/createitem', async(req, res)=> {
+adminRouter.post('/createitem', async(req, res)=> {
     const newItem = new Product({
         name: req.body.name,
         description: req.body.description,
@@ -33,7 +33,7 @@ dbRouter.post('/createitem', async(req, res)=> {
  * /deleteitem/id
  * - Delete an item based on the ID passed in url
  */
-dbRouter.delete('/deleteitem', async(req, res) => {
+adminRouter.delete('/deleteitem', async(req, res) => {
     const itemName = req.query.name;
     try{
         const foundItem = await Product.deleteOne({name: itemName});
@@ -47,7 +47,7 @@ dbRouter.delete('/deleteitem', async(req, res) => {
 /** 
  * Increment or Decrement inventory of an Item 
 */
-dbRouter.patch('/updateiteminv', async(req, res) => {
+adminRouter.patch('/updateiteminv', async(req, res) => {
     const item = req.query.name;
     
     try {
@@ -75,7 +75,7 @@ dbRouter.patch('/updateiteminv', async(req, res) => {
 /**
  * Change Item Description
  */
-dbRouter.patch('/updateitemdesc', async(req, res) => {
+adminRouter.patch('/updateitemdesc', async(req, res) => {
     const itemName = req.query.name;
 
     try {
@@ -103,7 +103,7 @@ dbRouter.patch('/updateitemdesc', async(req, res) => {
 /**
  * Change Item Price based on item name
  */
-dbRouter.patch('/updateitemprice', async(req, res) => {
+adminRouter.patch('/updateitemprice', async(req, res) => {
     const itemName = req.query.name;
     console.log(`itemName = ${itemName}`);
     try {
@@ -133,7 +133,7 @@ dbRouter.patch('/updateitemprice', async(req, res) => {
  * Get all current items
  * - Displays all Product(s)
  */
-dbRouter.get('/getitems', async(req, res) => {
+adminRouter.get('/getitems', async(req, res) => {
     try {
         const items = await Product.find(); 
         res.send(items);
@@ -147,7 +147,7 @@ dbRouter.get('/getitems', async(req, res) => {
  * /createsaleitem
  * - Creates a sale item
  */
-dbRouter.post('/createsaleitem', async(req, res) => {
+adminRouter.post('/createsaleitem', async(req, res) => {
     // just set a discount on the item when creating it
     const saleItem = new Product({
         name: req.body.name,
@@ -175,7 +175,7 @@ dbRouter.post('/createsaleitem', async(req, res) => {
 /**
  * Display all currently placed orders
  */
-dbRouter.get('/getorders', async(req, res) => {
+adminRouter.get('/getorders', async(req, res) => {
     try {
         const orders = await Order.find();
         res.send(orders);
@@ -187,7 +187,7 @@ dbRouter.get('/getorders', async(req, res) => {
 /**
  * Get all current orders via price (high -> low)
  */
-dbRouter.get('/getorders/byprice/high-low', async(req, res) => {
+adminRouter.get('/getorders/byprice/high-low', async(req, res) => {
     try {
         const orders = await Order.find().sort({orderTotal: -1});
         res.send(orders);
@@ -199,7 +199,7 @@ dbRouter.get('/getorders/byprice/high-low', async(req, res) => {
 /**
  * Get all current orders via price (low -> high)
  */
-dbRouter.get('/getorders/byprice/low-high', async(req, res) => {
+adminRouter.get('/getorders/byprice/low-high', async(req, res) => {
     try {
         const orders = await Order.find().sort({orderTotal: 1});
         res.send(orders);
@@ -211,7 +211,7 @@ dbRouter.get('/getorders/byprice/low-high', async(req, res) => {
 /**
  * Get all orders via date (new -> old)
  */
-dbRouter.get('/getorders/bydate/new-old' , async(req, res) => {
+adminRouter.get('/getorders/bydate/new-old' , async(req, res) => {
     try {
         const orders = await Order.find().sort({orderDate: -1});
         res.send(orders);
@@ -223,7 +223,7 @@ dbRouter.get('/getorders/bydate/new-old' , async(req, res) => {
 /**
  * Get all orders via date (old -> new)
  */
-dbRouter.get('/getorders/bydate/old-new', async(req, res) => {
+adminRouter.get('/getorders/bydate/old-new', async(req, res) => {
     try {
         const orders = await Order.find().sort({orderDate: 1});
         res.send(orders);
@@ -236,7 +236,7 @@ dbRouter.get('/getorders/bydate/old-new', async(req, res) => {
  * Get all orders for a Customer via their name
  * - Enter a customer name, and get all of their orders
  */
-dbRouter.get('/getorders/bycustomer', async(req, res) => {
+adminRouter.get('/getorders/bycustomer', async(req, res) => {
     const userName = req.query.name;
     //console.log(`userName = ${userName}`);
     try {
@@ -253,7 +253,7 @@ dbRouter.get('/getorders/bycustomer', async(req, res) => {
  * - Allow for creation of discount codes
  * - Discount is applied as a (% off)
  */
-dbRouter.post('/creatediscount', async(req, res) => {
+adminRouter.post('/creatediscount', async(req, res) => {
 
     const newDiscountCode = new DiscountCode({
         code: genDiscountCode(),
@@ -272,7 +272,7 @@ dbRouter.post('/creatediscount', async(req, res) => {
 /* User related Functions */
 
 // get all `Users` stored in the DB
-dbRouter.get('/getusers', async(req,res) => {
+adminRouter.get('/getusers', async(req,res) => {
     
     try {
         const users = await User.find();
@@ -286,7 +286,7 @@ dbRouter.get('/getusers', async(req,res) => {
 
 // Modify user (Email, Password, or Name) based on ID
 // Using 'patch' instead of 'put' as we only want to update specific fields of the User
-dbRouter.patch('/modifyuser',async(req, res)=> {
+adminRouter.patch('/modifyuser',async(req, res)=> {
     const userName = req.query.name;
     console.log(`user = ${userName}`);
     const updates = req.body.updates; // An array which holds objects
@@ -330,7 +330,7 @@ dbRouter.patch('/modifyuser',async(req, res)=> {
 });
 
 
-dbRouter.delete('/deleteuser', async(req, res) => {
+adminRouter.delete('/deleteuser', async(req, res) => {
     const userName = req.query.name;
     try{
         const foundUser = await User.deleteOne({name: userName});
@@ -342,7 +342,7 @@ dbRouter.delete('/deleteuser', async(req, res) => {
 
 
 // TODO: Cant do anything with this until MainPage is on GH (dont really know how login is implemented)
-dbRouter.get('/getadmin', async(req, res) => {
+adminRouter.get('/getadmin', async(req, res) => {
     try {
         const admin = await User.find({isAdmin: true}); // query for isAdmin: true ?
         res.send(admin.isAdmin); // true or false as return
@@ -369,4 +369,4 @@ function genDiscountCode() {
 
 
 
-export default dbRouter;
+export default adminRouter;
