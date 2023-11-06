@@ -7,6 +7,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import userRouter from './routes/user.js'
 import dbRouter from './routes/viewdb.js'
+import utilRouter from './routes/utilityRoute.js'
 
 const registrationFile = 'file:/Users/jakobsymchych/Documents/3773projectnotes/eCommerceProject/TrendTech_Titans/ttt_project/src'
 const __filename = fileURLToPath(registrationFile);
@@ -30,6 +31,10 @@ app.use(cors(corsOptions));
 // Handle static assets (html, css, images)
 app.use(express.static(path.join(__dirname, 'public'))); 
 app.use(express.static(path.join(__dirname, 'src', 'client', 'pages', 'Admin')));
+app.use(express.static(path.join(__dirname, 'public'))); // Handle static assets (html, css, images)
+app.use(express.static(path.join(__dirname, "src")));
+
+//TODO: All app.get() below are not functional, just a guide for when we do have the correct .html setup
 
 // loads registeration.html when `/register`route accessed
 app.get('/register', (req, res) => {
@@ -45,11 +50,47 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'src/client/pages/Login', 'login.html'))
 });
 
+// Display Admin Dashboard MainPage
+app.get('/viewdb', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'AdminMainPage.html'))
+});
+
+// HTML for displaying the modifyUser HTML
+app.get('/viewdb/modifyuser', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'modifyuser.html'))
+});
+
+// HTML for displaying the orderhistory HTML
+app.get('/viewdb/orderhistory', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'orderhistory.html'))
+});
+
+// HTML for displaying currentOrder HTML
+app.get('/viewdb/currentorder', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'currentorder.html'))
+});
+
+// HTML for displaying createDicount HTML
+app.get('/viewdb/creatediscount', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'creatediscount.html'))
+});
+
+// HTML for displaying createsaleitems HTML
+app.get('/viewdb/createsaleitem', (req, res) =>{
+    res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'createsaleitem.html'))
+});
+
+// HTML for modifyitems HTML
+app.get('/viewdb/modifyitem', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'modifyitem.html'))
+});
+
 
 app.use(express.json());               //JSON as that is what all GET/POST request(s) will be
 app.use('/login', userRouter);        // TODO: Not sure if this works out?   
 app.use('/register', userRouter);    // route for registering a new user
 app.use('/viewdb', dbRouter);       // temp name, will act as admin route
+app.use('/utility', utilRouter);   // act as utility route
 
 
 // listen for connection

@@ -13,11 +13,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         lowercase: true,
-            validate( value ){
-                if( !validator.isEmail( value )) {
-                    throw new Error('Email invalid');
-                }
-            }
     },
     password: {
         type: String,
@@ -38,6 +33,10 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Cart',
     },
+    order: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Order'
+    },
     // Generated tokens by 'jwt' used to authn. user(s)
     tokens: [{
         token: {
@@ -48,7 +47,5 @@ const userSchema = new mongoose.Schema({
       }, {
     timestamps: true
 });
-
-
 
 export default mongoose.model('User', userSchema);
