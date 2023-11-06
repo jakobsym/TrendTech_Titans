@@ -31,8 +31,7 @@ app.use(cors(corsOptions));
 // Handle static assets (html, css, images)
 app.use(express.static(path.join(__dirname, 'public'))); 
 app.use(express.static(path.join(__dirname, 'src', 'client', 'pages', 'Admin')));
-app.use(express.static(path.join(__dirname, 'public'))); // Handle static assets (html, css, images)
-app.use(express.static(path.join(__dirname, "src")));
+
 
 //TODO: All app.get() below are not functional, just a guide for when we do have the correct .html setup
 
