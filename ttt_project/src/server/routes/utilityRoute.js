@@ -13,6 +13,8 @@ utilRouter.post('/createorder', async(req, res) => {
     const user = req.body.user;
     const products = req.body.products;
     const orderStatus = req.body.orderStatus;
+    const discountCode = req.body.discountCode;
+
     let orderSum = 0;
     
     //console.log(`user = ${user}`);
@@ -22,11 +24,24 @@ utilRouter.post('/createorder', async(req, res) => {
     // get all products from products array
     for (const key in products) {
         const curItem = await Product.findById(products[key].product);
+
+        if (!curItem) {
+            return res.status(400).json({ message: `Product with ID ${products[key].product} not found` });
+        }
+
+        console.log(`curItem.price = ${curItem.price}`); 
         orderSum += curItem.price;
-        //console.log(`curItem.price = ${curItem.price}`); 
     }
 
-    orderSum += (orderSum * (SALES_TAX / 100));
+    let discountAmount = 0;
+    if (discountCode) {
+        const discount = await DiscountCode.findOne({code: discountCode});
+        if (discount) {
+            discountAmount = discount.value;
+        }
+    }
+    orderSum -= (orderSum * (discountAmount / 100)); // apply discount
+    orderSum += (orderSum * (SALES_TAX / 100));     // appl sales tax
     const orderSumFixed = Math.round(orderSum*100)/100; // I.E: 45.9999324 -> 45.99 (type Number) 
     //console.log(`orderSumFixed = ${orderSumFixed}`);
 
@@ -35,6 +50,8 @@ utilRouter.post('/createorder', async(req, res) => {
         products: products,
         orderStatus: orderStatus,
         orderTotal: orderSumFixed,
+        discountCode: discountCode,
+        discountAmount: discountAmount,
     });
     
     try {
@@ -63,6 +80,15 @@ utilRouter.delete('/deleteuser/:userId', getUser, async(req, res) => {
         res.json({message: `${res.user.id} user deleted.`});
     } catch(error) {
         res.status(500).json({message: "ERROR: Cannot delete User."});
+    }
+});
+
+utilRouter.delete('/deleteorder/:orderId', getOrder, async(req, res) => {
+    try {
+        await res.order.deleteOne();
+        res.json({message: `${res.order.id} order deleted.`});
+    } catch (error) {
+        res.status(500).json({message: "ERROR: Cannot delete Order."});
     }
 });
 
@@ -106,12 +132,34 @@ async function getUser(req, res, next) {
             return res.status(404).json({message: 'No User of that ID'});
         }
     } catch (error) {
-        return res.status(500).json({message: error.message});
+        return res.status(500).json({message: "ERROR: Cannot get user based on ID."});
     }
     res.user = user; // use 'res.user' in all getUser methods to access the current user based on ID
     next();
-};
+}
 
+/**
+ * Gets a Order by ID
+ * @param {Object} req 
+ * @param {Object} res 
+ * @param {Function} next 
+ * @returns a response of a `Order` based on orderID
+ */
+async function getOrder(req, res, next) {
+    let order;
+
+    try {
+        order = await Order.findById(req.params.orderId);
+        if(!order){
+            return res.status(404).json({message: "ERROR: No order of that ID."});
+        }
+        
+    } catch (error) {
+        res.status(500).json({message: "ERROR: Cannot get Order based on ID."});
+    }
+    res.order = order;
+    next();
+}
 
 
 export default utilRouter
