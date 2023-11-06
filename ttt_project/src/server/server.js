@@ -36,6 +36,10 @@ app.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, 'src/client/pages/Registration', 'registration.html'));
 });
 
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/client/pages/Admin', 'admin.html'));
+});
+
 // loads login.html when `/login`route accessed
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'src/client/pages/Login', 'login.html'))
