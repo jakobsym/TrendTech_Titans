@@ -5,7 +5,6 @@ import DiscountCode from '../models/DiscountCode.js';
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
 
-
 //TODO: Change all routes to work with admin dashboard frontend
 
 /**
