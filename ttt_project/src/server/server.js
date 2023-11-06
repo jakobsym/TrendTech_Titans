@@ -31,6 +31,7 @@ app.use(cors(corsOptions));
 app.use(express.static(path.join(__dirname, 'public'))); // Handle static assets (html, css, images)
 app.use(express.static(path.join(__dirname, "src")));
 
+//TODO: All app.get() below are not functional, just a guide for when we do have the correct .html setup
 
 // loads registeration.html when `/register`route accessed
 app.get('/register', (req, res) => {
